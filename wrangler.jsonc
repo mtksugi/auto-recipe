@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "auto-recipe",
   "main": "worker/index.ts",
-  "workers_dev": false,
+  "workers_dev": true,
   "preview_urls": false,
   "compatibility_date": "2026-08-01",
   "assets": {

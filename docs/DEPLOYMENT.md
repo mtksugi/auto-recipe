@@ -35,6 +35,9 @@ pnpm exec wrangler secret put OPENAI_API_KEY
 
 AccessはWorker自体を対象にできるため、独自ドメインは必須ではない。
 
+現在は上記1〜4まで設定済み。Access Policy `Allow owner`は
+本人のメールアドレスだけを許可し、`workers.dev`を有効にしている。
+
 ## 3. GitHub Repository
 
 GitHub Projectボードは不要で、通常のRepositoryを1つ作ればよい。
