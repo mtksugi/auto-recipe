@@ -20,6 +20,16 @@ export function canonicalMainIngredient(value) {
   return value;
 }
 
+export function safeHttpUrl(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(String(value));
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 function searchableTerms(recipe) {
   return [
     recipe.title,

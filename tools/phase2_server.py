@@ -43,7 +43,7 @@ URL: {url}
 ページにない人数・分量・手順は推測せず、nullまたはreview_flagsに記録してください。
 """
     return {
-        "model": os.environ.get("OPENAI_MODEL", "gpt-5.6"),
+        "model": os.environ.get("OPENAI_MODEL", "gpt-5.6-terra"),
         "tools": [{"type": "web_search"}],
         "tool_choice": "required",
         "input": [{"role": "user", "content": [{"type": "input_text", "text": text}]}],
@@ -55,7 +55,7 @@ def file_request(filename: str, mime: str, data: str, prompt: str, schema: dict)
     file_data = f"data:{mime};base64,{data}"
     content = [{"type": "input_file", "filename": filename, "file_data": file_data}, {"type": "input_text", "text": prompt}]
     return {
-        "model": os.environ.get("OPENAI_MODEL", "gpt-5.6"),
+        "model": os.environ.get("OPENAI_MODEL", "gpt-5.6-terra"),
         "input": [{"role": "user", "content": content}],
         "text": {"format": {"type": "json_schema", "name": "auto_recipe", "strict": True, "schema": schema}},
     }

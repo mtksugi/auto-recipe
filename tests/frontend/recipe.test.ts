@@ -6,6 +6,7 @@ import {
   normalize,
   parseNumber,
   resolveSelection,
+  safeHttpUrl,
   scaledAmount,
 } from "../../web/js/recipe.js";
 
@@ -71,5 +72,11 @@ describe("frontend recipe behavior", () => {
   it("selects the first filtered recipe when the previous selection disappeared", () => {
     expect(resolveSelection([porkRecipe], "egg")).toEqual({ recipe: porkRecipe, changed: true });
     expect(resolveSelection([porkRecipe], "pork")).toEqual({ recipe: porkRecipe, changed: false });
+  });
+
+  it("accepts only safe source URL schemes", () => {
+    expect(safeHttpUrl("https://example.com/recipe")).toBe("https://example.com/recipe");
+    expect(safeHttpUrl("javascript:alert(1)")).toBeNull();
+    expect(safeHttpUrl("not a url")).toBeNull();
   });
 });

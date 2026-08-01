@@ -16,6 +16,20 @@
       "bucket_name": "auto-recipe"
     }
   ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RECIPE_COORDINATOR",
+        "class_name": "UserRecipeCoordinator"
+      }
+    ]
+  },
+  "exports": {
+    "UserRecipeCoordinator": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
   "rules": [
     {
       "type": "Text",
@@ -24,7 +38,9 @@
     }
   ],
   "vars": {
-    "OPENAI_MODEL": "gpt-5.6"
+    "OPENAI_MODEL": "gpt-5.6-terra",
+    "TEAM_DOMAIN": "https://mtk11.cloudflareaccess.com",
+    "POLICY_AUD": "a8ce8d4f623b9a5ba68b589137cff9e0b58085d1a675ad3711ba5d8a15c6cc19"
   },
   "observability": {
     "enabled": true

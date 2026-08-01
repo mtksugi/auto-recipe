@@ -72,6 +72,8 @@ function collectRecipe() {
 
 $("#importForm").addEventListener("submit", async (event) => {
   event.preventDefault(); setStatus("変換中です。しばらくお待ちください。");
+  const submitButton = event.submitter;
+  if (submitButton) submitButton.disabled = true;
   try {
     const url = $("#urlInput").value.trim(); const file = $("#fileInput").files[0]; const payload = {};
     if (url) payload.url = url;
@@ -81,6 +83,7 @@ $("#importForm").addEventListener("submit", async (event) => {
     const data = await response.json(); if (!response.ok) throw new Error(data.error || "変換に失敗しました");
     renderEditor(data.recipe); setStatus("変換しました。内容を確認して保存してください。");
   } catch (error) { setStatus(error.message, true); }
+  finally { if (submitButton) submitButton.disabled = false; }
 });
 
 $("#addIngredient").addEventListener("click", () => renderIngredients([...collectRecipe().ingredients, { id: `ingredient_${Date.now()}`, name: "", amount: null, unit: null, scalable: true }]));
@@ -90,6 +93,8 @@ $("#addStep").addEventListener("click", () => {
 });
 $("#recipeForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const submitButton = event.submitter;
+  if (submitButton) submitButton.disabled = true;
   $("#saveError").textContent = "";
   setStatus("保存中です。");
   try {
@@ -99,4 +104,5 @@ $("#recipeForm").addEventListener("submit", async (event) => {
     if (!response.ok) throw new Error(data.error || "保存に失敗しました");
     window.location.href = "/";
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
+  finally { if (submitButton) submitButton.disabled = false; }
 });

@@ -8,7 +8,8 @@ Cloudflare Access
 Cloudflare Worker
   ├─ Static Assets: web/
   ├─ Hono API: worker/
-  ├─ R2: レシピJSONと保存履歴
+  ├─ Durable Object: ユーザー単位の保存直列化
+  ├─ R2: ユーザー別レシピJSONと保存履歴
   └─ OpenAI Responses API
 ```
 
@@ -37,20 +38,24 @@ OpenAI APIキーはWorker Secretだけに保存し、ブラウザ、Git、R2に�
 当面は単一ユーザー・JSON中心のため、データベースを導入せずR2を使用する。
 
 ```text
-data/recipes.json
-recipes/{recipe-id}.json
-history/{recipe-id}/{timestamp}.json
+users/{access-sub}/data/recipes.json
+users/{access-sub}/recipes/{recipe-id}.json
+users/{access-sub}/history/{recipe-id}/{timestamp}.json
 ```
 
-- `data/recipes.json`: 一覧・検索用の全レシピ
-- `recipes/`: 各レシピの最新版
-- `history/`: 保存時点のスナップショット
+- `users/{access-sub}/data/recipes.json`: ユーザーごとの一覧・検索用レシピ
+- `users/{access-sub}/recipes/`: ユーザーごとの各レシピ最新版
+- `users/{access-sub}/history/`: ユーザーごとの保存時点スナップショット
+
+`access-sub`はブラウザから受け取らず、WorkerがCloudflare Access JWTの署名、issuer、AUDを検証した後に`sub` claimから取得する。メールアドレスはR2キーに使わない。
+
+保存処理は`access-sub`ごとのDurable Objectを経由し、同じユーザーによる複数端末からの保存を直列化する。
 
 R2が空の場合は、デプロイに同梱した`web/data/recipes.json`を返す。初回保存時にこの一覧を基にR2の一覧を作る。
 
 公開Repositoryに実レシピを含めないため、同梱データは架空サンプルだけとする。本人用データはR2を正本とする。
 
-複数ユーザー、同時更新、複雑な検索が必要になった時点でD1などのDBを再検討する。
+複雑な検索やユーザー横断の管理機能が必要になった時点でD1などのDBを再検討する。
 
 ## データの流れ
 
@@ -78,6 +83,8 @@ URLまたはファイル
 
 - アプリ全体をCloudflare Accessで保護する
 - 本人のメールアドレスだけをAllowする
+- WorkerでもAccess JWTの署名、issuer、AUDを検証する
+- R2キーはAccess JWTの`sub`でユーザー分離する
 - `OPENAI_API_KEY`はWorker Secretで管理する
 - GitHub Actionsのデプロイ資格情報はGitHub Secretsで管理する
 - `workers.dev`を使う場合も、公開前にWorker自体をAccessの対象にする
@@ -86,7 +93,6 @@ URLまたはファイル
 
 ## 現在の制約
 
-- 単一ユーザーを前提とし、同時更新の排他制御は行わない
 - ファイル入力はBase64処理の負荷を考慮し15MBまで
 - 長い変換処理はブラウザ切断の影響を受ける可能性がある
 - 手順内分量の人数連動は今後の改善項目

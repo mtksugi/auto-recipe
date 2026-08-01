@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --env-file tools/.env",
+    "dev": "wrangler dev --env-file tools/.env --var DEV_USER_ID:local-owner",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -13,7 +13,8 @@
     "check": "tsc --noEmit && vitest run"
   },
   "dependencies": {
-    "hono": "4.12.33"
+    "hono": "4.12.33",
+    "jose": "^6.2.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260801.1",

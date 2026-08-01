@@ -4,7 +4,7 @@
     "title": "塩むすび（サンプル）",
     "title_reading": "しおむすび さんぷる",
     "source": {
-      "type": "manual",
+      "type": "unknown",
       "url": null,
       "site": null,
       "filename": null
@@ -36,12 +36,14 @@
       {
         "number": 1,
         "text": "手を水でぬらし、塩をなじませる。",
-        "ingredient_refs": ["ingredient-2"]
+        "ingredient_refs": ["ingredient-2"],
+        "time_minutes": null
       },
       {
         "number": 2,
         "text": "温かいごはんを2等分し、好みの形ににぎる。",
-        "ingredient_refs": ["ingredient-1"]
+        "ingredient_refs": ["ingredient-1"],
+        "time_minutes": null
       }
     ],
     "categories": ["主食"],

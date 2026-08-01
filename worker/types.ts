@@ -49,6 +49,10 @@ export interface Recipe {
 export interface Env {
   ASSETS: Fetcher;
   RECIPES: R2Bucket;
+  RECIPE_COORDINATOR: DurableObjectNamespace;
   OPENAI_API_KEY: string;
   OPENAI_MODEL: string;
+  TEAM_DOMAIN: string;
+  POLICY_AUD: string;
+  DEV_USER_ID?: string;
 }

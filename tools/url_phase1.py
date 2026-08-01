@@ -63,7 +63,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("urls", nargs="+", help="public recipe URLs")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "gpt-5.6"))
+    parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "gpt-5.6-terra"))
     args = parser.parse_args()
 
     if not os.environ.get("OPENAI_API_KEY"):

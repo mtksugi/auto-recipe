@@ -20,6 +20,11 @@ pnpm exec wrangler secret put OPENAI_API_KEY
 
 `OPENAI_API_KEY`はGitHub Actionsに渡さない。Worker側へ登録済みのSecretは、通常の再デプロイでも維持される。
 
+Access JWT検証に使う次の値は秘密情報ではないため、`wrangler.jsonc`の`vars`で管理する。
+
+- `TEAM_DOMAIN`: Zero Trustのteam domain
+- `POLICY_AUD`: Access applicationのAudience tag
+
 ## 2. workers.devでの試験公開
 
 独自ドメインがなくても、Cloudflareが割り当てる`*.workers.dev`で公開できる。

@@ -136,7 +136,7 @@ def main() -> int:
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--limit", type=int, default=0, help="process only the first N files")
-    parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "gpt-5.6"))
+    parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "gpt-5.6-terra"))
     parser.add_argument("--prepare-only", action="store_true", help="write manifest without calling OpenAI")
     args = parser.parse_args()
 

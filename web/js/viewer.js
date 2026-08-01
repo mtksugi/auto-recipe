@@ -5,6 +5,7 @@ import {
   escapeHtml,
   filterRecipes,
   resolveSelection,
+  safeHttpUrl,
   uniqueValues,
 } from "./recipe.js";
 
@@ -63,7 +64,8 @@ function renderDetail() {
   }
   const targetServings = recipe.servings ? (state.servings || recipe.servings) : null;
   const flags = recipe.review_flags ?? [];
-  const source = recipe.source?.url ? `<a class="source-link" href="${escapeHtml(recipe.source.url)}" target="_blank" rel="noreferrer">元ソースを開く</a>` : "";
+  const sourceUrl = safeHttpUrl(recipe.source?.url);
+  const source = sourceUrl ? `<a class="source-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer noopener">元ソースを開く</a>` : "";
   $("#recipeDetail").innerHTML = `<article>
     <header class="detail-header">
       <p class="detail-kicker">${escapeHtml((recipe.categories ?? []).join(" · ") || "RECIPE")}</p>
