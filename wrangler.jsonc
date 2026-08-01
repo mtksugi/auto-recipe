@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "auto-recipe",
+  "main": "worker/index.ts",
+  "workers_dev": false,
+  "preview_urls": false,
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./web",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/data/recipes.json"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "RECIPES",
+      "bucket_name": "auto-recipe"
+    }
+  ],
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.md"],
+      "fallthrough": true
+    }
+  ],
+  "vars": {
+    "OPENAI_MODEL": "gpt-5.6"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

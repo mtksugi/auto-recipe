@@ -1,0 +1,61 @@
+[
+  {
+    "id": "sample-shio-onigiri",
+    "title": "塩むすび（サンプル）",
+    "title_reading": "しおむすび さんぷる",
+    "source": {
+      "type": "manual",
+      "url": null,
+      "site": null,
+      "filename": null
+    },
+    "servings": 2,
+    "ingredients": [
+      {
+        "id": "ingredient-1",
+        "name": "温かいごはん",
+        "reading": "あたたかいごはん",
+        "aliases": ["ご飯", "米"],
+        "amount": "300",
+        "unit": "g",
+        "scalable": true,
+        "section": null
+      },
+      {
+        "id": "ingredient-2",
+        "name": "塩",
+        "reading": "しお",
+        "aliases": [],
+        "amount": "少々",
+        "unit": null,
+        "scalable": false,
+        "section": null
+      }
+    ],
+    "steps": [
+      {
+        "number": 1,
+        "text": "手を水でぬらし、塩をなじませる。",
+        "ingredient_refs": ["ingredient-2"]
+      },
+      {
+        "number": 2,
+        "text": "温かいごはんを2等分し、好みの形ににぎる。",
+        "ingredient_refs": ["ingredient-1"]
+      }
+    ],
+    "categories": ["主食"],
+    "main_ingredients": [
+      {
+        "name": "ごはん",
+        "reading": "ごはん",
+        "aliases": ["ご飯", "米"],
+        "ingredient_refs": ["ingredient-1"]
+      }
+    ],
+    "tags": ["サンプル"],
+    "time_minutes": 5,
+    "notes": ["公開Repository用の架空サンプルデータです。"],
+    "review_flags": []
+  }
+]

@@ -1,0 +1,26 @@
+.admin-layout { max-width: 920px; margin: 0 auto; padding: 28px 22px 60px; display: grid; gap: 18px; }
+.admin-card { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); box-shadow: 0 8px 24px rgba(51, 43, 32, .05); }
+.admin-card h2 { margin: 0 0 18px; font-size: 18px; }
+.admin-card label { display: grid; gap: 6px; margin: 0 0 14px; color: var(--muted); font-size: 12px; }
+.admin-card input, .admin-card textarea { width: 100%; box-sizing: border-box; padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); font: inherit; }
+.admin-card textarea { resize: vertical; }
+.or { margin: 0 0 12px; color: var(--muted); font-size: 12px; text-align: center; }
+.primary-button { padding: 11px 16px; border: 0; border-radius: 8px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; }
+.status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
+.status.error { color: #a1442d; }
+.save-error { min-height: 1.4em; margin: 8px 0 0; color: #a1442d; font-size: 12px; }
+.editor-heading, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.editor-heading span { color: var(--muted); font-size: 12px; }
+.section-heading { margin: 24px 0 10px; }
+.section-heading h3 { margin: 0; font-size: 14px; }
+.small-button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--accent); font-size: 11px; cursor: pointer; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ingredient-row, .step-row { display: grid; gap: 7px; margin-bottom: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #fffdf9; }
+.ingredient-row { grid-template-columns: 1.4fr .8fr .8fr auto auto; align-items: center; }
+.ingredient-row input, .step-row textarea { margin: 0; }
+.ingredient-row label { display: flex; align-items: center; gap: 5px; margin: 0; white-space: nowrap; }
+.ingredient-row label input { width: auto; }
+.remove-button { border: 0; background: transparent; color: #a1442d; cursor: pointer; }
+.step-row { grid-template-columns: 30px 1fr auto; align-items: start; }
+.step-number { padding-top: 10px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (max-width: 650px) { .admin-layout { padding: 18px 14px 40px; } .admin-card { padding: 18px; } .form-grid { grid-template-columns: 1fr 1fr; } .ingredient-row { grid-template-columns: 1fr 1fr; } .ingredient-row input:first-child { grid-column: 1 / -1; } .ingredient-row label { font-size: 11px; } }

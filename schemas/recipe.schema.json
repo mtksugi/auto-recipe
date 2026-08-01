@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AutoRecipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "title_reading",
+    "source",
+    "servings",
+    "ingredients",
+    "steps",
+    "categories",
+    "main_ingredients",
+    "tags",
+    "time_minutes",
+    "notes",
+    "review_flags"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "title_reading": { "type": "string" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "site", "filename"],
+      "properties": {
+        "type": { "type": "string", "enum": ["url", "file", "text", "pdf", "image", "unknown"] },
+        "url": { "type": ["string", "null"] },
+        "site": { "type": ["string", "null"] },
+        "filename": { "type": ["string", "null"] }
+      }
+    },
+    "servings": { "type": ["integer", "null"], "minimum": 1 },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "reading", "aliases", "amount", "unit", "scalable", "section"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "reading": { "type": "string" },
+          "aliases": { "type": "array", "items": { "type": "string" } },
+          "amount": { "type": ["string", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "scalable": { "type": "boolean" },
+          "section": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["number", "text", "ingredient_refs", "time_minutes"],
+        "properties": {
+          "number": { "type": "integer", "minimum": 1 },
+          "text": { "type": "string" },
+          "ingredient_refs": { "type": "array", "items": { "type": "string" } },
+          "time_minutes": { "type": ["integer", "null"], "minimum": 0 }
+        }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["主食", "主菜", "副菜", "汁物", "丼・ごはん", "麺", "パン・軽食", "おつまみ", "デザート", "その他"]
+      }
+    },
+    "main_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "reading", "aliases", "ingredient_refs"],
+        "properties": {
+          "name": { "type": "string" },
+          "reading": { "type": "string" },
+          "aliases": { "type": "array", "items": { "type": "string" } },
+          "ingredient_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "time_minutes": { "type": ["integer", "null"], "minimum": 0 },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "review_flags": { "type": "array", "items": { "type": "string" } }
+  }
+}

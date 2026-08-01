@@ -1,0 +1,9 @@
+{
+  "name": "auto-recipe",
+  "short_name": "auto-recipe",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#f7f5ef",
+  "lang": "ja"
+}

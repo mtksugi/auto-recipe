@@ -1,0 +1,28 @@
+{
+  "name": "auto-recipe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --env-file tools/.env",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:frontend": "vitest run tests/frontend",
+    "test:worker": "vitest run tests/worker",
+    "check": "tsc --noEmit && vitest run"
+  },
+  "dependencies": {
+    "hono": "4.12.33"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260801.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "wrangler": "4.118.0"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.13"
+  }
+}
