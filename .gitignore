@@ -1,6 +1,4 @@
-phase0-output/manifest.json
-phase0-output/recipes/
-phase0-output/errors/
+phase0-output/
 phase1-url-output/
 phase2-output/errors/
 phase2-output/recipes/
