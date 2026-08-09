@@ -10,7 +10,8 @@
 - 生成結果を確認・修正して保存する
 - タイトル、カテゴリ、主要材料から検索する
 - 人数に合わせて材料の分量を換算する
-- スマートフォンで料理中に閲覧する
+- スマートフォンで料理中に閲覧し、対応端末では画面の消灯を防ぐ
+- 選択したレシピのURLをブックマークする
 
 ## 技術構成
 
@@ -44,6 +45,7 @@ pnpm check
 
 - [プロダクト方針](docs/PRODUCT.md)
 - [アーキテクチャ](docs/ARCHITECTURE.md)
+- [UI仕様](docs/UI.md)
 - [開発ロードマップ](docs/ROADMAP.md)
 - [公開・運用手順](docs/DEPLOYMENT.md)
 - [MVPまでの検証記録](docs/history/README.md)

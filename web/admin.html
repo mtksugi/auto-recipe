@@ -5,27 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="admin.css">
-    <title>auto-recipe 登録</title>
+    <title>レシピを追加 | auto-recipe</title>
   </head>
   <body>
     <header class="app-header">
-      <div><p class="eyebrow">RECIPE INBOX</p><h1>レシピを登録</h1></div>
-      <a class="text-button" href="/">ビューアへ</a>
+      <div><p class="eyebrow">RECIPE INBOX</p><h1>レシピを追加</h1></div>
+      <a class="header-link secondary" href="/">レシピ一覧へ</a>
     </header>
     <main class="admin-layout">
       <section class="admin-card">
-        <h2>入力</h2>
+        <h2>取り込み元</h2>
         <form id="importForm">
-          <label>URL <input id="urlInput" type="url" placeholder="https://..."></label>
-          <p class="or">または</p>
-          <label>ファイル <input id="fileInput" type="file" accept=".txt,.pdf,.jpg,.jpeg,.png,.webp"></label>
-          <button class="primary-button" type="submit">LLMで変換する</button>
+          <div class="import-tabs" role="tablist" aria-label="取り込み方法">
+            <button id="urlTab" class="import-tab active" type="button" role="tab" aria-selected="true" aria-controls="urlPanel" tabindex="0">URLから</button>
+            <button id="fileTab" class="import-tab" type="button" role="tab" aria-selected="false" aria-controls="filePanel" tabindex="-1">ファイルから</button>
+          </div>
+          <div id="urlPanel" class="import-panel" role="tabpanel" aria-labelledby="urlTab">
+            <label>レシピのURL <input id="urlInput" type="url" placeholder="https://..." autocomplete="url"></label>
+          </div>
+          <div id="filePanel" class="import-panel" role="tabpanel" aria-labelledby="fileTab" hidden>
+            <label>レシピのファイル <input id="fileInput" type="file" accept=".txt,.pdf,.jpg,.jpeg,.png,.webp"></label>
+            <p class="field-help">対応形式：PDF、画像、テキスト（最大15MB）</p>
+          </div>
+          <button id="importButton" class="primary-button" type="submit">レシピを取り込む</button>
         </form>
+        <div id="loadingStatus" class="loading-status" role="status" hidden>
+          <span class="spinner" aria-hidden="true"></span>
+          <span><strong>レシピを読み取っています</strong><small>通常は数十秒ほどかかります。この画面を閉じずにお待ちください。</small></span>
+        </div>
         <p id="status" class="status" aria-live="polite"></p>
       </section>
 
       <section id="editor" class="admin-card" hidden>
-        <div class="editor-heading"><h2>確認・修正</h2><span>保存前に内容を確認してください</span></div>
+        <div class="editor-heading"><h2>取り込んだ内容を確認</h2><span>保存前に内容を確認してください</span></div>
         <form id="recipeForm">
           <input id="recipeId" type="hidden">
           <label>タイトル <input id="titleInput" required></label>
@@ -39,7 +51,7 @@
           <div id="stepsEditor"></div>
           <label>タグ（カンマ区切り） <input id="tagsInput"></label>
           <label>メモ（1行1件） <textarea id="notesInput" rows="4"></textarea></label>
-          <button class="primary-button" type="submit">確定保存する</button>
+          <button class="primary-button" type="submit">この内容で保存</button>
           <p id="saveError" class="save-error" aria-live="polite"></p>
         </form>
       </section>

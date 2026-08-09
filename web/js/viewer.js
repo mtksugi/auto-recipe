@@ -8,6 +8,8 @@ import {
   safeHttpUrl,
   uniqueValues,
 } from "./recipe.js";
+import { recipeIdFromLocation, recipeUrl } from "./navigation.js";
+import { ScreenWakeLock } from "./wake-lock.js";
 
 const state = {
   recipes: [],
@@ -17,6 +19,8 @@ const state = {
   selectedId: "",
   servings: null,
 };
+const screenWakeLock = new ScreenWakeLock();
+let wakeLockMessage = "";
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -35,7 +39,7 @@ function renderFilters() {
 
 function chip(value, label, active, kind) {
   const attribute = kind === "mainIngredient" ? `data-main-ingredient="${escapeHtml(value)}"` : `data-category="${escapeHtml(value)}"`;
-  return `<button class="chip${active ? " active" : ""}" type="button" ${attribute}>${escapeHtml(label)}</button>`;
+  return `<button class="chip${active ? " active" : ""}" type="button" aria-pressed="${active}" ${attribute}>${escapeHtml(label)}</button>`;
 }
 
 function renderList(recipes) {
@@ -48,11 +52,7 @@ function renderList(recipes) {
     </button>`;
   }).join("") : `<p class="empty-detail">条件に合うレシピがありません。</p>`;
   document.querySelectorAll("[data-recipe-id]").forEach((button) => button.addEventListener("click", () => {
-    state.selectedId = button.dataset.recipeId;
-    const recipe = state.recipes.find((item) => item.id === state.selectedId);
-    state.servings = recipe?.servings ?? null;
-    render();
-    $("#recipeDetail").scrollIntoView({ behavior: "smooth", block: "start" });
+    selectRecipe(button.dataset.recipeId, true);
   }));
 }
 
@@ -73,6 +73,11 @@ function renderDetail() {
       <p class="detail-reading">${escapeHtml(recipe.title_reading ?? "")}</p>
     </header>
     <div class="detail-body">
+      <div class="detail-actions">
+        <button id="backToList" class="back-to-list" type="button">← レシピ一覧へ</button>
+        <button id="wakeLockButton" class="wake-lock-button${screenWakeLock.requested ? " active" : ""}" type="button" aria-pressed="${screenWakeLock.requested}">${screenWakeLock.requested ? "画面を消さない：オン" : "画面を消さない"}</button>
+        ${wakeLockMessage ? `<p class="wake-lock-message">${escapeHtml(wakeLockMessage)}</p>` : ""}
+      </div>
       ${flags.length ? `<p class="warning"><strong>要確認：</strong>${flags.map(escapeHtml).join(" / ")}</p>` : ""}
       <div class="detail-toolbar">
         ${recipe.servings ? `<div class="servings-control"><span>何人分？</span><button class="servings-step" type="button" data-servings-delta="-1" aria-label="人数を1人減らす">−</button><input id="servingsInput" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="30" value="${targetServings}" aria-label="人数"><button class="servings-step" type="button" data-servings-delta="1" aria-label="人数を1人増やす">＋</button><span>人</span><button class="servings-reset" type="button" id="resetServings">標準に戻す</button></div>` : `<span class="servings-note">人数換算なし（原文量）</span>`}
@@ -84,6 +89,8 @@ function renderDetail() {
       ${(recipe.tags ?? []).length ? `<section class="detail-section"><div class="detail-tags">${recipe.tags.map((tag) => `<span class="detail-tag">${escapeHtml(tag)}</span>`).join("")}</div></section>` : ""}
     </div>
   </article>`;
+  $("#backToList")?.addEventListener("click", () => showList(true));
+  $("#wakeLockButton")?.addEventListener("click", toggleWakeLock);
   const servingsInput = $("#servingsInput");
   const commitServings = () => {
     if (!servingsInput) return;
@@ -107,13 +114,49 @@ function renderDetail() {
   });
 }
 
+async function toggleWakeLock() {
+  wakeLockMessage = "";
+  try {
+    if (screenWakeLock.requested) await screenWakeLock.disable();
+    else if (!await screenWakeLock.enable()) wakeLockMessage = "この端末では画面消灯の防止を利用できません。";
+  } catch (error) {
+    screenWakeLock.requested = false;
+    wakeLockMessage = "画面を消さない設定を有効にできませんでした。端末の設定をご確認ください。";
+    console.error(error);
+  }
+  renderDetail();
+}
+
+async function showList(addHistory) {
+  await screenWakeLock.disable();
+  wakeLockMessage = "";
+  state.selectedId = "";
+  state.servings = null;
+  if (addHistory) history.pushState({}, "", recipeUrl(window.location, ""));
+  render();
+  $("#recipeList")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function selectRecipe(id, addHistory) {
+  const recipe = state.recipes.find((item) => item.id === id);
+  if (!recipe) return false;
+  state.selectedId = recipe.id;
+  state.servings = recipe.servings ?? null;
+  if (addHistory) history.pushState({}, "", recipeUrl(window.location, recipe.id));
+  render();
+  $("#recipeDetail").scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
+}
+
 function render() {
   renderFilters();
   const recipes = filteredRecipes();
   const selection = resolveSelection(recipes, state.selectedId);
-  if (selection.changed) {
-    state.selectedId = selection.recipe?.id ?? "";
-    state.servings = selection.recipe?.servings ?? null;
+  if (state.selectedId && selection.changed) {
+    state.selectedId = "";
+    state.servings = null;
+    history.replaceState({}, "", recipeUrl(window.location, ""));
+    screenWakeLock.disable().catch(console.error);
   }
   renderList(recipes);
   renderDetail();
@@ -122,13 +165,40 @@ function render() {
 async function init() {
   try {
     state.recipes = await fetch("data/recipes.json").then((response) => response.json());
+    const savedRecipe = sessionStorage.getItem("recipeSaved");
+    if (savedRecipe) {
+      sessionStorage.removeItem("recipeSaved");
+      const notice = document.createElement("p");
+      notice.className = "toast";
+      notice.setAttribute("role", "status");
+      notice.textContent = `「${savedRecipe}」を保存しました`;
+      document.body.append(notice);
+      setTimeout(() => notice.remove(), 4500);
+    }
     $("#searchInput").addEventListener("input", (event) => { state.query = event.target.value; render(); });
     $("#clearFilters").addEventListener("click", () => { state.query = ""; state.category = ""; state.mainIngredient = ""; $("#searchInput").value = ""; render(); });
-    render();
+    const requestedId = recipeIdFromLocation(window.location);
+    if (requestedId && !selectRecipe(requestedId, false)) {
+      history.replaceState({}, "", recipeUrl(window.location, ""));
+      render();
+    } else if (!requestedId) render();
   } catch (error) {
     $("#recipeDetail").innerHTML = `<div class="empty-detail"><h2>レシピを読み込めませんでした</h2><p>HTTPサーバー経由で web/ を開いてください。</p></div>`;
     console.error(error);
   }
 }
+
+window.addEventListener("popstate", () => {
+  const recipeId = recipeIdFromLocation(window.location);
+  if (recipeId) selectRecipe(recipeId, false);
+  else showList(false);
+});
+
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState !== "visible" || !state.selectedId) return;
+  try { await screenWakeLock.reacquire(); }
+  catch (error) { console.error(error); }
+  renderDetail();
+});
 
 init();

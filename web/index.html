@@ -14,7 +14,10 @@
         <p class="eyebrow">MY RECIPE BOOK</p>
         <h1>auto-recipe</h1>
       </div>
-      <button id="clearFilters" class="text-button" type="button">リセット</button>
+      <nav class="header-actions" aria-label="メインナビゲーション">
+        <button id="clearFilters" class="text-button" type="button">検索条件をクリア</button>
+        <a class="header-link" href="admin.html">レシピを追加</a>
+      </nav>
     </header>
 
     <main class="layout">
@@ -35,7 +38,7 @@
         <div id="recipeList" class="recipe-list" aria-live="polite"></div>
       </section>
 
-      <section id="recipeDetail" class="recipe-detail" aria-live="polite">
+      <section id="recipeDetail" class="recipe-detail" aria-live="polite" tabindex="-1">
         <div class="empty-detail">
           <span class="empty-icon">🍳</span>
           <h2>レシピを選んでください</h2>
