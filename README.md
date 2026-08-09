@@ -48,6 +48,7 @@ pnpm check
 - [UI仕様](docs/UI.md)
 - [開発ロードマップ](docs/ROADMAP.md)
 - [公開・運用手順](docs/DEPLOYMENT.md)
+- [既存レシピの一括移行](docs/DATA-IMPORT.md)
 - [MVPまでの検証記録](docs/history/README.md)
 
 ## 主なディレクトリ
