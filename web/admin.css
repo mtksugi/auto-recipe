@@ -5,7 +5,19 @@
 .admin-card input, .admin-card textarea { width: 100%; box-sizing: border-box; padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); font: inherit; }
 .admin-card textarea { resize: vertical; }
 .or { margin: 0 0 12px; color: var(--muted); font-size: 12px; text-align: center; }
-.primary-button { padding: 11px 16px; border: 0; border-radius: 8px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; }
+.primary-button { min-height: 46px; padding: 11px 16px; border: 0; border-radius: 8px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; }
+.primary-button:disabled { cursor: wait; opacity: .65; }
+.import-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 18px; padding: 4px; border-radius: 10px; background: var(--paper); }
+.import-tab { min-height: 44px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-weight: 700; }
+.import-tab.active { background: white; color: var(--accent); box-shadow: 0 2px 8px rgba(51, 43, 32, .08); }
+.import-tab:disabled { cursor: wait; opacity: .6; }
+.field-help { margin: -7px 0 15px; color: var(--muted); font-size: 11px; }
+.loading-status { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 13px 14px; border-radius: 10px; background: var(--accent-soft); color: var(--ink); font-size: 13px; }
+.loading-status[hidden] { display: none; }
+.loading-status small { display: block; margin-top: 3px; color: var(--muted); line-height: 1.5; }
+.spinner { width: 22px; height: 22px; flex: 0 0 auto; border: 3px solid rgba(198, 93, 63, .22); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 1.8s; } }
 .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
 .status.error { color: #a1442d; }
 .save-error { min-height: 1.4em; margin: 8px 0 0; color: #a1442d; font-size: 12px; }
