@@ -1,6 +1,6 @@
-import { editRecipeId, updateIngredient, updateStep } from "./admin-model.js";
+import { updateIngredient, updateStep } from "./admin-model.js";
+import { configureEditNavigation } from "./admin-edit.js";
 import { saveRecipeAndRedirect } from "./admin-save.js";
-import { recipeViewerUrl } from "./navigation.js";
 
 const $ = (selector) => document.querySelector(selector);
 let candidate = null;
@@ -63,14 +63,12 @@ function renderEditor(recipe) {
 }
 
 async function loadRecipeForEditing() {
-  editingRecipeId = editRecipeId(window.location);
+  editingRecipeId = configureEditNavigation(window.location, {
+    importCard: $("#importCard"),
+    cancelEdit: $("#cancelEdit"),
+    headerReturnLink: $("#headerReturnLink"),
+  });
   if (!editingRecipeId) return;
-  const returnUrl = recipeViewerUrl(editingRecipeId);
-  $("#importCard").hidden = true;
-  $("#cancelEdit").hidden = false;
-  $("#cancelEdit").href = returnUrl;
-  $("#headerReturnLink").href = returnUrl;
-  $("#headerReturnLink").textContent = "レシピへ戻る";
   try {
     const response = await fetch("/data/recipes.json", { cache: "no-store" });
     if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
