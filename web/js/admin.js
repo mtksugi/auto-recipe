@@ -1,4 +1,5 @@
 import { editRecipeId, updateIngredient, updateStep } from "./admin-model.js";
+import { saveRecipeAndRedirect } from "./admin-save.js";
 import { recipeViewerUrl } from "./navigation.js";
 
 const $ = (selector) => document.querySelector(selector);
@@ -169,11 +170,11 @@ $("#recipeForm").addEventListener("submit", async (event) => {
   setStatus("保存中です。");
   try {
     const recipe = collectRecipe();
-    const response = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipe }) });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "保存に失敗しました");
-    sessionStorage.setItem("recipeSaved", recipe.title);
-    window.location.href = recipeViewerUrl(recipe.id);
+    await saveRecipeAndRedirect(recipe, {
+      fetcher: fetch,
+      storage: sessionStorage,
+      navigate: (url) => { window.location.href = url; },
+    });
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
   finally { if (submitButton) submitButton.disabled = false; }
 });
