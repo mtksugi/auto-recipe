@@ -2,6 +2,45 @@ import { updateIngredient, updateStep } from "./admin-model.js";
 
 const $ = (selector) => document.querySelector(selector);
 let candidate = null;
+const editId = new URL(window.location.href).searchParams.get("edit");
+
+const importState = { method: "url", loading: false };
+const importTabs = [$("#urlTab"), $("#fileTab")];
+
+function setImportMethod(method, focus = false) {
+  if (importState.loading) return;
+  importState.method = method;
+  const urlSelected = method === "url";
+  $("#urlPanel").hidden = !urlSelected;
+  $("#filePanel").hidden = urlSelected;
+  importTabs.forEach((tab) => {
+    const selected = tab.id === (urlSelected ? "urlTab" : "fileTab");
+    tab.classList.toggle("active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  });
+  if (focus) $(urlSelected ? "#urlInput" : "#fileInput").focus();
+}
+
+function setImportLoading(loading) {
+  importState.loading = loading;
+  $("#importForm").setAttribute("aria-busy", String(loading));
+  $("#loadingStatus").hidden = !loading;
+  $("#importButton").disabled = loading;
+  $("#importButton").textContent = loading ? "読み取り中…" : "レシピを取り込む";
+  [$("#urlInput"), $("#fileInput"), ...importTabs].forEach((control) => { control.disabled = loading; });
+}
+
+importTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => setImportMethod(tab.id === "urlTab" ? "url" : "file", true));
+  tab.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    event.preventDefault();
+    const next = importTabs[index === 0 ? 1 : 0];
+    setImportMethod(next.id === "urlTab" ? "url" : "file", true);
+    next.focus();
+  });
+});
 
 function setStatus(message, error = false) { const el = $("#status"); el.textContent = message; el.classList.toggle("error", error); }
 function rowInput(value = "", placeholder = "") { const input = document.createElement("input"); input.value = value ?? ""; input.placeholder = placeholder; return input; }
@@ -18,6 +57,27 @@ function renderEditor(recipe) {
   renderIngredients(recipe.ingredients ?? []);
   renderSteps(recipe.steps ?? []);
   $("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function loadRecipeForEditing() {
+  if (!editId) return;
+  $("#importCard").hidden = true;
+  $("#pageTitle").textContent = "レシピを編集";
+  $("#editorTitle").textContent = "レシピを編集";
+  document.title = "レシピを編集 | auto-recipe";
+  try {
+    const response = await fetch("/data/recipes.json");
+    if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
+    const recipes = await response.json();
+    const recipe = recipes.find((item) => item.id === editId);
+    if (!recipe) throw new Error("編集するレシピが見つかりません");
+    renderEditor(recipe);
+    setStatus("");
+  } catch (error) {
+    $("#editor").hidden = false;
+    $("#recipeForm").hidden = true;
+    $("#saveError").textContent = error.message;
+  }
 }
 
 function renderIngredients(items) {
@@ -71,19 +131,21 @@ function collectRecipe() {
 }
 
 $("#importForm").addEventListener("submit", async (event) => {
-  event.preventDefault(); setStatus("変換中です。しばらくお待ちください。");
-  const submitButton = event.submitter;
-  if (submitButton) submitButton.disabled = true;
+  event.preventDefault();
+  setStatus("");
+  setImportLoading(true);
   try {
     const url = $("#urlInput").value.trim(); const file = $("#fileInput").files[0]; const payload = {};
-    if (url) payload.url = url;
-    else if (file) { payload.filename = file.name; payload.mime = file.type || "application/octet-stream"; payload.data = (await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = reject; reader.readAsDataURL(file); })); }
-    else throw new Error("URLまたはファイルを指定してください");
+    if (importState.method === "url" && url) payload.url = url;
+    else if (importState.method === "file" && file) {
+      if (file.size > 15 * 1024 * 1024) throw new Error("ファイルは15MB以下にしてください");
+      payload.filename = file.name; payload.mime = file.type || "application/octet-stream"; payload.data = (await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = reject; reader.readAsDataURL(file); })); }
+    else throw new Error(importState.method === "url" ? "URLを入力してください" : "ファイルを選択してください");
     const response = await fetch("/api/normalize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    const data = await response.json(); if (!response.ok) throw new Error(data.error || "変換に失敗しました");
-    renderEditor(data.recipe); setStatus("変換しました。内容を確認して保存してください。");
-  } catch (error) { setStatus(error.message, true); }
-  finally { if (submitButton) submitButton.disabled = false; }
+    const data = await response.json(); if (!response.ok) throw new Error(data.error || "レシピを読み取れませんでした");
+    renderEditor(data.recipe); setStatus("内容を読み取りました。確認して保存してください。");
+  } catch (error) { setStatus(`${error.message} 入力内容を確認して、もう一度お試しください。`, true); }
+  finally { setImportLoading(false); }
 });
 
 $("#addIngredient").addEventListener("click", () => renderIngredients([...collectRecipe().ingredients, { id: `ingredient_${Date.now()}`, name: "", amount: null, unit: null, scalable: true }]));
@@ -102,7 +164,10 @@ $("#recipeForm").addEventListener("submit", async (event) => {
     const response = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipe }) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "保存に失敗しました");
-    window.location.href = "/";
+    sessionStorage.setItem("recipeSaved", recipe.title);
+    window.location.href = `/?recipe=${encodeURIComponent(recipe.id)}`;
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
   finally { if (submitButton) submitButton.disabled = false; }
 });
+
+loadRecipeForEditing();

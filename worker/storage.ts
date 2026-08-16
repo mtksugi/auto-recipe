@@ -202,3 +202,30 @@ export async function saveRecipe(env: Env, userId: string, recipe: Recipe): Prom
   });
   return recipes;
 }
+
+async function deleteRecipeObjects(bucket: R2Bucket, userId: string, recipeId: string): Promise<void> {
+  const prefix = userPrefix(userId);
+  const encodedId = encodeURIComponent(recipeId);
+  const keys = [`${prefix}/recipes/${encodedId}.json`];
+  let cursor: string | undefined;
+  do {
+    const listed = await bucket.list({ prefix: `${prefix}/history/${encodedId}/`, cursor });
+    keys.push(...listed.objects.map((object) => object.key));
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
+  for (let index = 0; index < keys.length; index += 1000) {
+    await bucket.delete(keys.slice(index, index + 1000));
+  }
+}
+
+export async function deleteRecipe(env: Env, userId: string, recipeId: string): Promise<Recipe[]> {
+  if (!recipeId.trim()) throw new Error("レシピIDが必要です");
+  const current = await readRecipeIndex(env, userId) ?? await readBundledRecipeIndex(env);
+  const recipes = current.filter((recipe) => recipe.id !== recipeId);
+  if (recipes.length === current.length) throw new Error("削除するレシピが見つかりません");
+  await deleteRecipeObjects(env.RECIPES, userId, recipeId);
+  await env.RECIPES.put(userIndexKey(userId), JSON.stringify(recipes, null, 2) + "\n", {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  });
+  return recipes;
+}

@@ -18,7 +18,10 @@ button { cursor: pointer; }
 .app-header { display: flex; align-items: center; justify-content: space-between; max-width: 1280px; margin: 0 auto; padding: 28px 28px 18px; }
 .eyebrow { margin: 0 0 4px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
 h1 { margin: 0; font-family: Georgia, serif; font-size: 30px; letter-spacing: -.03em; }
-.text-button { border: 0; background: transparent; color: var(--muted); font-size: 13px; }
+.text-button { min-height: 44px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); font-size: 13px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-link { display: inline-flex; min-height: 44px; align-items: center; padding: 0 15px; border-radius: 999px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; text-decoration: none; }
+.header-link.secondary { border: 1px solid var(--line); background: var(--card); color: var(--accent); }
 .layout { display: grid; grid-template-columns: minmax(280px, 390px) minmax(0, 1fr); gap: 24px; max-width: 1280px; margin: 0 auto; padding: 0 28px 48px; }
 .search-panel { min-width: 0; }
 .search-box { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--muted); }
@@ -49,9 +52,9 @@ h1 { margin: 0; font-family: Georgia, serif; font-size: 30px; letter-spacing: -.
 .detail-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 24px; }
 .servings-control { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; }
 .servings-control input { width: 56px; padding: 8px 6px; border: 1px solid var(--line); border-radius: 8px; background: white; text-align: center; font: inherit; color: var(--ink); }
-.servings-step { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: white; color: var(--accent); font-size: 18px; line-height: 1; cursor: pointer; }
+.servings-step { width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: white; color: var(--accent); font-size: 20px; line-height: 1; cursor: pointer; }
 .servings-step:active { background: var(--accent-soft); }
-.servings-reset { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
+.servings-reset { min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
 .servings-reset:active { background: var(--accent-soft); color: var(--accent); }
 .detail-meta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-left: auto; color: var(--muted); font-size: 12px; }
 .time-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
@@ -73,11 +76,26 @@ h1 { margin: 0; font-family: Georgia, serif; font-size: 30px; letter-spacing: -.
 .detail-tag { padding: 5px 9px; border-radius: 999px; background: #f0ede5; color: var(--muted); font-size: 11px; }
 .source-link { color: var(--accent); font-size: 12px; }
 .warning { margin: 0 0 20px; padding: 12px 14px; border-left: 3px solid #d4973c; background: #fff7e9; color: #775522; font-size: 12px; line-height: 1.6; }
+.detail-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
+.back-to-list, .wake-lock-button, .edit-recipe-link, .delete-recipe-button { display: inline-flex; min-height: 44px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--muted); font-size: 12px; text-decoration: none; cursor: pointer; }
+.recipe-management { display: flex; flex: 1 1 260px; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.edit-recipe-link { color: var(--accent); }
+.delete-recipe-button { color: #a1442d; }
+.delete-recipe-button:disabled { cursor: wait; opacity: .65; }
+.wake-lock-button.active { border-color: var(--green); background: #edf4ef; color: var(--green); font-weight: 700; }
+.detail-action-message { flex-basis: 100%; margin: 0; color: #a1442d; font-size: 12px; }
 
 @media (max-width: 760px) {
   .app-header { padding: 20px 16px 14px; }
+  .app-header h1 { font-size: 25px; }
+  .header-actions { gap: 2px; }
+  .header-actions .text-button { padding: 0 6px; font-size: 11px; }
+  .header-link { padding: 0 12px; }
   .layout { display: block; padding: 0 16px 32px; }
   .recipe-detail { margin-top: 18px; border-radius: 14px; }
   .detail-header, .detail-body { padding: 22px 18px; }
   .empty-detail { min-height: 300px; }
+  .detail-actions { align-items: stretch; }
+  .recipe-management { flex-basis: 100%; justify-content: flex-start; }
 }
+.toast { position: fixed; z-index: 10; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); max-width: min(360px, calc(100vw - 36px)); margin: 0; padding: 13px 17px; border-radius: 10px; background: var(--green); box-shadow: 0 8px 24px rgba(41, 39, 35, .18); color: white; font-size: 13px; }

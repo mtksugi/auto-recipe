@@ -29,6 +29,7 @@ Cloudflare Worker
 
 - `POST /api/normalize`: URLまたはファイルをレシピJSONへ変換
 - `POST /api/save`: 確認済みレシピをR2へ保存
+- `DELETE /api/recipes/:id`: レシピと保存履歴を完全削除
 - `GET /data/recipes.json`: レシピ一覧を返す
 
 OpenAI APIキーはWorker Secretだけに保存し、ブラウザ、Git、R2には保存しない。
@@ -96,3 +97,13 @@ URLまたはファイル
 - ファイル入力はBase64処理の負荷を考慮し15MBまで
 - 長い変換処理はブラウザ切断の影響を受ける可能性がある
 - 手順内分量の人数連動は今後の改善項目
+
+## フロントエンドの画面状態
+
+選択中のレシピは `/?recipe={recipe-id}` で表現し、History APIでブラウザの戻る・進む操作と同期する。クエリーパラメーター方式とすることで、Static Assetsのルーティングを追加せず直接アクセスとブックマークに対応する。
+
+料理中の画面消灯防止にはScreen Wake Lock APIを使用する。このAPIは任意の機能として扱い、非対応、端末設定、ページの非表示などにより取得できない場合も閲覧機能を継続する。
+
+取り込み元のURL・ファイルは画面上でタブを分けるが、バックエンドでは引き続き共通の `POST /api/normalize` を使用する。
+
+保存済みレシピの編集は既存の `POST /api/save` に同じIDを渡す更新として扱う。削除はユーザー単位のDurable Objectで直列化し、一覧JSON、個別JSON、対象IDの保存履歴を削除する。利用者向けの復元機能は提供しない。
