@@ -68,9 +68,14 @@ function renderDetail() {
   const source = sourceUrl ? `<a class="source-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer noopener">元ソースを開く</a>` : "";
   $("#recipeDetail").innerHTML = `<article>
     <header class="detail-header">
-      <p class="detail-kicker">${escapeHtml((recipe.categories ?? []).join(" · ") || "RECIPE")}</p>
-      <h2>${escapeHtml(recipe.title)}</h2>
-      <p class="detail-reading">${escapeHtml(recipe.title_reading ?? "")}</p>
+      <div class="detail-title-row">
+        <div>
+          <p class="detail-kicker">${escapeHtml((recipe.categories ?? []).join(" · ") || "RECIPE")}</p>
+          <h2>${escapeHtml(recipe.title)}</h2>
+          <p class="detail-reading">${escapeHtml(recipe.title_reading ?? "")}</p>
+        </div>
+        <a class="edit-recipe-link" href="admin.html?recipe=${encodeURIComponent(recipe.id)}"><span aria-hidden="true">✎</span> 編集</a>
+      </div>
     </header>
     <div class="detail-body">
       <div class="detail-actions">
@@ -166,12 +171,14 @@ async function init() {
   try {
     state.recipes = await fetch("data/recipes.json").then((response) => response.json());
     const savedRecipe = sessionStorage.getItem("recipeSaved");
-    if (savedRecipe) {
+    const deletedRecipe = sessionStorage.getItem("recipeDeleted");
+    if (savedRecipe || deletedRecipe) {
       sessionStorage.removeItem("recipeSaved");
+      sessionStorage.removeItem("recipeDeleted");
       const notice = document.createElement("p");
       notice.className = "toast";
       notice.setAttribute("role", "status");
-      notice.textContent = `「${savedRecipe}」を保存しました`;
+      notice.textContent = savedRecipe ? `「${savedRecipe}」を保存しました` : `「${deletedRecipe}」を完全に削除しました`;
       document.body.append(notice);
       setTimeout(() => notice.remove(), 4500);
     }

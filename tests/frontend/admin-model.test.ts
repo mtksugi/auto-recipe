@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { updateIngredient, updateStep } from "../../web/js/admin-model.js";
+import { editRecipeId, updateIngredient, updateStep } from "../../web/js/admin-model.js";
 
 describe("admin editor model", () => {
   it("keeps ingredient metadata while applying edits", () => {
@@ -33,5 +33,10 @@ describe("admin editor model", () => {
       ingredient_refs: ["egg"],
       time_minutes: 3,
     });
+  });
+
+  it("reads an encoded recipe id from the edit URL", () => {
+    expect(editRecipeId({ href: "https://example.com/admin.html?recipe=special%2Fid" })).toBe("special/id");
+    expect(editRecipeId({ href: "https://example.com/admin.html" })).toBe("");
   });
 });
