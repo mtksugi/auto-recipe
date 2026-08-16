@@ -2,6 +2,7 @@
 
 ## Verification
 
+- Before running any Node.js or pnpm command, run `nvm use` so the repository's `.nvmrc` selects Node.js 22.14.0. Do not use the shell's default Node.js version.
 - Run `pnpm check` after changing application code.
 - Keep deployment out of verification; use `pnpm exec wrangler deploy --dry-run` when deployment configuration changes.
 
