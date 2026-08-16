@@ -1,4 +1,5 @@
 import { editRecipeId, updateIngredient, updateStep } from "./admin-model.js";
+import { recipeViewerUrl } from "./navigation.js";
 
 const $ = (selector) => document.querySelector(selector);
 let candidate = null;
@@ -63,9 +64,14 @@ function renderEditor(recipe) {
 async function loadRecipeForEditing() {
   editingRecipeId = editRecipeId(window.location);
   if (!editingRecipeId) return;
+  const returnUrl = recipeViewerUrl(editingRecipeId);
   $("#importCard").hidden = true;
+  $("#cancelEdit").hidden = false;
+  $("#cancelEdit").href = returnUrl;
+  $("#headerReturnLink").href = returnUrl;
+  $("#headerReturnLink").textContent = "レシピへ戻る";
   try {
-    const response = await fetch("/data/recipes.json");
+    const response = await fetch("/data/recipes.json", { cache: "no-store" });
     if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
     const recipes = await response.json();
     const recipe = recipes.find((item) => item.id === editingRecipeId);
@@ -167,7 +173,7 @@ $("#recipeForm").addEventListener("submit", async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "保存に失敗しました");
     sessionStorage.setItem("recipeSaved", recipe.title);
-    window.location.href = "/";
+    window.location.href = recipeViewerUrl(recipe.id);
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
   finally { if (submitButton) submitButton.disabled = false; }
 });

@@ -169,7 +169,10 @@ function render() {
 
 async function init() {
   try {
-    state.recipes = await fetch("data/recipes.json").then((response) => response.json());
+    state.recipes = await fetch("data/recipes.json", { cache: "no-store" }).then((response) => {
+      if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
+      return response.json();
+    });
     const savedRecipe = sessionStorage.getItem("recipeSaved");
     const deletedRecipe = sessionStorage.getItem("recipeDeleted");
     if (savedRecipe || deletedRecipe) {
