@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { requireAuthenticatedUser } from "./auth";
-import { listUserRecipes, saveUserRecipe } from "./coordinator";
+import { deleteUserRecipe, listUserRecipes, saveUserRecipe } from "./coordinator";
 import { normalizeRecipe } from "./openai";
 import type { Env, Recipe } from "./types";
 
@@ -26,6 +26,13 @@ app.post("/api/save", async (context) => {
   if (!payload.recipe) throw new Error("レシピが必要です");
   const recipes = await saveUserRecipe(context.env, user.id, payload.recipe);
   return context.json({ saved: `recipes/${payload.recipe.id}.json`, recipe: payload.recipe, viewer_count: recipes.length });
+});
+
+app.delete("/api/recipes/:id", async (context) => {
+  const user = await requireAuthenticatedUser(context.req.raw, context.env);
+  const recipeId = context.req.param("id");
+  const recipes = await deleteUserRecipe(context.env, user.id, recipeId);
+  return context.json({ deleted: recipeId, viewer_count: recipes.length });
 });
 
 app.get("/data/recipes.json", async (context) => {

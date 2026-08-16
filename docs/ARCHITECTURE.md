@@ -29,6 +29,7 @@ Cloudflare Worker
 
 - `POST /api/normalize`: URLまたはファイルをレシピJSONへ変換
 - `POST /api/save`: 確認済みレシピをR2へ保存
+- `DELETE /api/recipes/:id`: レシピ本体と保存履歴を完全削除
 - `GET /data/recipes.json`: レシピ一覧を返す
 
 OpenAI APIキーはWorker Secretだけに保存し、ブラウザ、Git、R2には保存しない。
@@ -50,6 +51,7 @@ users/{access-sub}/history/{recipe-id}/{timestamp}.json
 `access-sub`はブラウザから受け取らず、WorkerがCloudflare Access JWTの署名、issuer、AUDを検証した後に`sub` claimから取得する。メールアドレスはR2キーに使わない。
 
 保存処理は`access-sub`ごとのDurable Objectを経由し、同じユーザーによる複数端末からの保存を直列化する。
+編集も既存IDへの保存として同じ経路を通す。完全削除もDurable Objectで直列化し、対象を一覧JSONから除き、個別JSONと`history/{recipe-id}/`以下の全スナップショットを削除する。ゴミ箱や復元用データは作成しない。
 
 R2が空の場合は、デプロイに同梱した`web/data/recipes.json`を返す。初回保存時にこの一覧を基にR2の一覧を作る。
 

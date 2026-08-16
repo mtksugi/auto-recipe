@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeLegacyRecipe, readRecipeIndex, saveRecipe, upsertRecipe, userPrefix, validateRecipe } from "../../worker/storage";
+import { deleteRecipe, normalizeLegacyRecipe, readRecipeIndex, saveRecipe, upsertRecipe, userPrefix, validateRecipe } from "../../worker/storage";
 import type { Env, Recipe } from "../../worker/types";
 
 function recipe(id: string, title: string): Recipe {
@@ -38,6 +38,18 @@ class MemoryBucket {
     }
     this.values.set(key, String(value ?? ""));
     return {} as R2Object;
+  }
+
+
+  async list(options?: R2ListOptions): Promise<R2Objects> {
+    const objects = [...this.values.keys()]
+      .filter((key) => !options?.prefix || key.startsWith(options.prefix))
+      .map((key) => ({ key }) as R2Object);
+    return { objects, truncated: false } as R2Objects;
+  }
+
+  async delete(keys: string | string[]): Promise<void> {
+    for (const key of Array.isArray(keys) ? keys : [keys]) this.values.delete(key);
   }
 }
 
@@ -103,5 +115,32 @@ describe("recipe storage", () => {
     expect(bucket.values.has("users/user-b/data/recipes.json")).toBe(true);
     expect(bucket.values.get("users/user-a/data/recipes.json")).toContain("Aの料理");
     expect(bucket.values.get("users/user-a/data/recipes.json")).not.toContain("Bの料理");
+  });
+
+  it("deletes the recipe from the index, individual JSON, and all history", async () => {
+    const bucket = new MemoryBucket();
+    const env = environment(bucket);
+    await saveRecipe(env, "user-a", recipe("special/id", "削除対象"));
+    await saveRecipe(env, "user-a", recipe("special/id", "更新後"));
+    await saveRecipe(env, "user-a", recipe("keep", "残す料理"));
+
+    const recipes = await deleteRecipe(env, "user-a", "special/id");
+
+    expect(recipes.map((item) => item.id)).not.toContain("special/id");
+    expect(recipes.map((item) => item.id)).toContain("keep");
+    expect(bucket.values.get("users/user-a/data/recipes.json")).not.toContain("special/id");
+    expect(bucket.values.has("users/user-a/recipes/special%2Fid.json")).toBe(false);
+    expect([...bucket.values.keys()].some((key) => key.startsWith("users/user-a/history/special%2Fid/"))).toBe(false);
+    expect(bucket.values.has("users/user-a/recipes/keep.json")).toBe(true);
+  });
+
+  it("does not change storage when the deletion target is missing", async () => {
+    const bucket = new MemoryBucket();
+    const env = environment(bucket);
+    await saveRecipe(env, "user-a", recipe("keep", "残す料理"));
+    const before = new Map(bucket.values);
+
+    await expect(deleteRecipe(env, "user-a", "missing")).rejects.toThrow("見つかりません");
+    expect(bucket.values).toEqual(before);
   });
 });

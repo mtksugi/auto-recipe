@@ -1,7 +1,9 @@
-import { updateIngredient, updateStep } from "./admin-model.js";
+import { editRecipeId, updateIngredient, updateStep } from "./admin-model.js";
 
 const $ = (selector) => document.querySelector(selector);
 let candidate = null;
+let editingRecipeId = "";
+let deletingRecipe = false;
 
 const importState = { method: "url", loading: false };
 const importTabs = [$("#urlTab"), $("#fileTab")];
@@ -56,6 +58,28 @@ function renderEditor(recipe) {
   renderIngredients(recipe.ingredients ?? []);
   renderSteps(recipe.steps ?? []);
   $("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function loadRecipeForEditing() {
+  editingRecipeId = editRecipeId(window.location);
+  if (!editingRecipeId) return;
+  $("#importCard").hidden = true;
+  try {
+    const response = await fetch("/data/recipes.json");
+    if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
+    const recipes = await response.json();
+    const recipe = recipes.find((item) => item.id === editingRecipeId);
+    if (!recipe) throw new Error("編集するレシピが見つかりません");
+    document.title = `${recipe.title}を編集 | auto-recipe`;
+    $("#pageTitle").textContent = "レシピを編集";
+    $("#editorTitle").textContent = "保存済みレシピを編集";
+    $("#editorHelp").textContent = "変更内容を確認して保存してください";
+    $("#dangerZone").hidden = false;
+    renderEditor(recipe);
+  } catch (error) {
+    $("#importCard").hidden = false;
+    setStatus(error.message, true);
+  }
 }
 
 function renderIngredients(items) {
@@ -147,3 +171,41 @@ $("#recipeForm").addEventListener("submit", async (event) => {
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
   finally { if (submitButton) submitButton.disabled = false; }
 });
+
+$("#deleteRecipe").addEventListener("click", async () => {
+  if (!candidate || !editingRecipeId) return;
+  const title = $("#titleInput").value.trim() || candidate.title;
+  $("#deleteDialogDescription").textContent = `「${title}」を完全に削除します。`;
+  $("#deleteDialog").showModal();
+  $("#cancelDelete").focus();
+});
+
+$("#deleteDialog").addEventListener("cancel", (event) => {
+  if (deletingRecipe) event.preventDefault();
+});
+
+$("#confirmDelete").addEventListener("click", async () => {
+  if (!candidate || !editingRecipeId || deletingRecipe) return;
+  deletingRecipe = true;
+  $("#confirmDelete").disabled = true;
+  $("#cancelDelete").disabled = true;
+  $("#saveError").textContent = "";
+  setStatus("削除中です。");
+  try {
+    const response = await fetch(`/api/recipes/${encodeURIComponent(editingRecipeId)}`, { method: "DELETE" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "削除に失敗しました");
+    sessionStorage.setItem("recipeDeleted", candidate.title);
+    window.location.href = "/";
+  } catch (error) {
+    $("#deleteDialog").close();
+    setStatus("削除できませんでした。", true);
+    $("#saveError").textContent = error.message;
+  } finally {
+    deletingRecipe = false;
+    $("#confirmDelete").disabled = false;
+    $("#cancelDelete").disabled = false;
+  }
+});
+
+loadRecipeForEditing();

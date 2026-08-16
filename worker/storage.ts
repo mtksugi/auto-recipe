@@ -101,6 +101,14 @@ function userIndexKey(userId: string): string {
   return `${userPrefix(userId)}/data/recipes.json`;
 }
 
+function recipeObjectKey(userId: string, recipeId: string): string {
+  return `${userPrefix(userId)}/recipes/${encodeURIComponent(recipeId)}.json`;
+}
+
+function recipeHistoryPrefix(userId: string, recipeId: string): string {
+  return `${userPrefix(userId)}/history/${encodeURIComponent(recipeId)}/`;
+}
+
 async function readIndexAt(bucket: R2Bucket, key: string): Promise<Recipe[] | null> {
   const object = await bucket.get(key);
   if (!object) return null;
@@ -197,6 +205,29 @@ export async function saveRecipe(env: Env, userId: string, recipe: Recipe): Prom
   const recipes = upsertRecipe(current, recipe);
   const timestamp = new Date().toISOString().replaceAll(":", "-");
   await writeRecipeSnapshot(env.RECIPES, userId, recipe, timestamp);
+  await env.RECIPES.put(userIndexKey(userId), JSON.stringify(recipes, null, 2) + "\n", {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  });
+  return recipes;
+}
+
+async function deletePrefix(bucket: R2Bucket, prefix: string): Promise<void> {
+  let cursor: string | undefined;
+  do {
+    const page = await bucket.list({ prefix, cursor });
+    if (page.objects.length) await bucket.delete(page.objects.map((object) => object.key));
+    cursor = page.truncated ? page.cursor : undefined;
+  } while (cursor);
+}
+
+export async function deleteRecipe(env: Env, userId: string, recipeId: string): Promise<Recipe[]> {
+  if (!recipeId.trim()) throw new Error("レシピIDが必要です");
+  const current = await readRecipeIndex(env, userId) ?? await readBundledRecipeIndex(env);
+  if (!current.some((recipe) => recipe.id === recipeId)) throw new Error("削除するレシピが見つかりません");
+
+  const recipes = current.filter((recipe) => recipe.id !== recipeId);
+  await deletePrefix(env.RECIPES, recipeHistoryPrefix(userId, recipeId));
+  await env.RECIPES.delete(recipeObjectKey(userId, recipeId));
   await env.RECIPES.put(userIndexKey(userId), JSON.stringify(recipes, null, 2) + "\n", {
     httpMetadata: { contentType: "application/json; charset=utf-8" },
   });

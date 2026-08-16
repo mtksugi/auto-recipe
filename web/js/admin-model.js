@@ -19,3 +19,8 @@ export function updateStep(original, text, number) {
     time_minutes: original?.time_minutes ?? null,
   };
 }
+
+
+export function editRecipeId(location) {
+  return new URL(location.href).searchParams.get("recipe")?.trim() || "";
+}

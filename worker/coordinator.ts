@@ -1,4 +1,4 @@
-import { readRecipeIndex, saveRecipe } from "./storage";
+import { deleteRecipe, readRecipeIndex, saveRecipe } from "./storage";
 import type { Env, Recipe } from "./types";
 
 const USER_ID_HEADER = "x-auto-recipe-user-id";
@@ -32,6 +32,11 @@ export class UserRecipeCoordinator {
       const recipes = await saveRecipe(this.env, userId, payload.recipe);
       return Response.json({ recipes });
     }
+    if (request.method === "DELETE" && path.startsWith("/recipes/")) {
+      const recipeId = decodeURIComponent(path.slice("/recipes/".length));
+      const recipes = await deleteRecipe(this.env, userId, recipeId);
+      return Response.json({ recipes });
+    }
     return new Response("Not found", { status: 404 });
   }
 }
@@ -63,5 +68,14 @@ export async function saveUserRecipe(env: Env, userId: string, recipe: Recipe): 
   });
   const payload = await response.json<{ recipes?: Recipe[]; error?: string }>();
   if (!response.ok || !payload.recipes) throw new Error(payload.error || `レシピを保存できませんでした (${response.status})`);
+  return payload.recipes;
+}
+
+export async function deleteUserRecipe(env: Env, userId: string, recipeId: string): Promise<Recipe[]> {
+  const response = await coordinatorResponse(env, userId, `/recipes/${encodeURIComponent(recipeId)}`, {
+    method: "DELETE",
+  });
+  const payload = await response.json<{ recipes?: Recipe[]; error?: string }>();
+  if (!response.ok || !payload.recipes) throw new Error(payload.error || `レシピを削除できませんでした (${response.status})`);
   return payload.recipes;
 }
