@@ -3,14 +3,14 @@ export function normalize(value) {
     .normalize("NFKC")
     .toLowerCase()
     .replace(/[ァ-ン]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0x60))
-    .replace(/[\s　]/g, "");
+    .replace(/\s/g, "");
 }
 
-export function allMainIngredientTerms(recipe) {
+function allMainIngredientTerms(recipe) {
   return (recipe.main_ingredients ?? []).flatMap((item) => [item.name, item.reading, ...(item.aliases ?? [])]);
 }
 
-export function allIngredientTerms(recipe) {
+function allIngredientTerms(recipe) {
   return (recipe.ingredients ?? []).flatMap((item) => [item.name, item.reading, ...(item.aliases ?? [])]);
 }
 
@@ -91,7 +91,7 @@ export function parseNumber(value) {
   return null;
 }
 
-export function formatNumber(value) {
+function formatNumber(value) {
   if (Math.abs(value - Math.round(value)) < 0.0001) return String(Math.round(value));
   return `約${value.toFixed(1).replace(/\.0$/, "")}`;
 }

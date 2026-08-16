@@ -8,6 +8,7 @@ import {
   resolveSelection,
   safeHttpUrl,
   scaledAmount,
+  scoreRecipe,
 } from "../../web/js/recipe.js";
 
 const eggRecipe = {
@@ -62,6 +63,10 @@ describe("frontend recipe behavior", () => {
   it("ranks a main ingredient match above an ordinary ingredient match", () => {
     const results = filterRecipes([porkRecipe, eggRecipe], { query: "卵" });
     expect(results.map((recipe: { id: string }) => recipe.id)).toEqual(["egg", "pork"]);
+  });
+
+  it("keeps title readings searchable even when they are not displayed", () => {
+    expect(scoreRecipe(porkRecipe, "ぶたにらたま")).toBe(100);
   });
 
   it("filters by category and main ingredient", () => {

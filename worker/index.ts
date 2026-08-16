@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { requireAuthenticatedUser } from "./auth";
 import { deleteUserRecipe, listUserRecipes, saveUserRecipe } from "./coordinator";
 import { normalizeRecipe } from "./openai";
+import type { NormalizePayload } from "./openai";
 import type { Env, Recipe } from "./types";
 
 export { UserRecipeCoordinator } from "./coordinator";
@@ -15,7 +16,7 @@ app.onError((error, context) => {
 
 app.post("/api/normalize", async (context) => {
   await requireAuthenticatedUser(context.req.raw, context.env);
-  const payload = await context.req.json();
+  const payload = await context.req.json<NormalizePayload>();
   const recipe = await normalizeRecipe(payload, context.env);
   return context.json({ recipe });
 });

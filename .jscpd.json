@@ -1,0 +1,8 @@
+{
+  "path": ["worker", "web/js"],
+  "minLines": 8,
+  "minTokens": 60,
+  "threshold": 0,
+  "reporters": ["console"],
+  "ignore": ["**/*.d.ts"]
+}
