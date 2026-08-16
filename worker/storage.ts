@@ -68,7 +68,7 @@ function validSourceUrl(url: string | null): boolean {
 }
 
 export function validateRecipe(value: unknown): asserts value is Recipe {
-  validateSchema(value, recipeSchema as JsonSchema);
+  validateSchema(value, recipeSchema);
   const recipe = value as Recipe;
   if (!recipe.id.trim()) throw new Error("レシピIDが必要です");
   if (!recipe.title.trim()) throw new Error("タイトルが必要です");
@@ -191,7 +191,7 @@ export async function readRecipeIndex(env: Env, userId: string): Promise<Recipe[
   return await readIndexAt(env.RECIPES, userIndexKey(userId)) ?? await migrateLegacyIndex(env, userId);
 }
 
-export async function readBundledRecipeIndex(env: Env): Promise<Recipe[]> {
+async function readBundledRecipeIndex(env: Env): Promise<Recipe[]> {
   const response = await env.ASSETS.fetch(new Request("https://assets.local/data/recipes.json"));
   if (!response.ok) return [];
   const recipes = await response.json<Recipe[]>();

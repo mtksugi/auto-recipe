@@ -5,7 +5,7 @@ import type { Env, Recipe } from "./types";
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 
-interface NormalizePayload {
+export interface NormalizePayload {
   url?: string;
   filename?: string;
   mime?: string;

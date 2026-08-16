@@ -1,11 +1,11 @@
-export interface RecipeSource {
+interface RecipeSource {
   type: "url" | "file" | "text" | "pdf" | "image" | "unknown";
   url: string | null;
   site: string | null;
   filename: string | null;
 }
 
-export interface RecipeIngredient {
+interface RecipeIngredient {
   id: string;
   name: string;
   reading: string;
@@ -16,14 +16,14 @@ export interface RecipeIngredient {
   section: string | null;
 }
 
-export interface RecipeStep {
+interface RecipeStep {
   number: number;
   text: string;
   ingredient_refs: string[];
   time_minutes: number | null;
 }
 
-export interface MainIngredient {
+interface MainIngredient {
   name: string;
   reading: string;
   aliases: string[];

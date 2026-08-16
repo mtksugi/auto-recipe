@@ -1,5 +1,4 @@
 import {
-  allMainIngredientTerms,
   canonicalMainIngredient,
   displayAmount,
   escapeHtml,
@@ -9,6 +8,7 @@ import {
   uniqueValues,
 } from "./recipe.js";
 import { recipeIdFromLocation, recipeUrl } from "./navigation.js";
+import { fetchRecipeIndex } from "./viewer-data.js";
 import { ScreenWakeLock } from "./wake-lock.js";
 
 const state = {
@@ -72,7 +72,6 @@ function renderDetail() {
         <div>
           <p class="detail-kicker">${escapeHtml((recipe.categories ?? []).join(" · ") || "RECIPE")}</p>
           <h2>${escapeHtml(recipe.title)}</h2>
-          <p class="detail-reading">${escapeHtml(recipe.title_reading ?? "")}</p>
         </div>
         <a class="edit-recipe-link" href="admin.html?recipe=${encodeURIComponent(recipe.id)}"><span aria-hidden="true">✎</span> 編集</a>
       </div>
@@ -169,7 +168,7 @@ function render() {
 
 async function init() {
   try {
-    state.recipes = await fetch("data/recipes.json").then((response) => response.json());
+    state.recipes = await fetchRecipeIndex(fetch);
     const savedRecipe = sessionStorage.getItem("recipeSaved");
     const deletedRecipe = sessionStorage.getItem("recipeDeleted");
     if (savedRecipe || deletedRecipe) {

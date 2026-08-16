@@ -1,4 +1,6 @@
-import { editRecipeId, updateIngredient, updateStep } from "./admin-model.js";
+import { updateIngredient, updateStep } from "./admin-model.js";
+import { configureEditNavigation } from "./admin-edit.js";
+import { saveRecipeAndRedirect } from "./admin-save.js";
 
 const $ = (selector) => document.querySelector(selector);
 let candidate = null;
@@ -61,11 +63,14 @@ function renderEditor(recipe) {
 }
 
 async function loadRecipeForEditing() {
-  editingRecipeId = editRecipeId(window.location);
+  editingRecipeId = configureEditNavigation(window.location, {
+    importCard: $("#importCard"),
+    cancelEdit: $("#cancelEdit"),
+    headerReturnLink: $("#headerReturnLink"),
+  });
   if (!editingRecipeId) return;
-  $("#importCard").hidden = true;
   try {
-    const response = await fetch("/data/recipes.json");
+    const response = await fetch("/data/recipes.json", { cache: "no-store" });
     if (!response.ok) throw new Error("レシピ一覧を取得できませんでした");
     const recipes = await response.json();
     const recipe = recipes.find((item) => item.id === editingRecipeId);
@@ -163,11 +168,11 @@ $("#recipeForm").addEventListener("submit", async (event) => {
   setStatus("保存中です。");
   try {
     const recipe = collectRecipe();
-    const response = await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipe }) });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "保存に失敗しました");
-    sessionStorage.setItem("recipeSaved", recipe.title);
-    window.location.href = "/";
+    await saveRecipeAndRedirect(recipe, {
+      fetcher: fetch,
+      storage: sessionStorage,
+      navigate: (url) => { window.location.href = url; },
+    });
   } catch (error) { setStatus("保存できませんでした。", true); $("#saveError").textContent = error.message; }
   finally { if (submitButton) submitButton.disabled = false; }
 });

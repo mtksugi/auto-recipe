@@ -8,3 +8,10 @@ export function recipeUrl(locationLike, recipeId) {
   else url.searchParams.delete("recipe");
   return `${url.pathname}${url.search}${url.hash}`;
 }
+
+export function recipeViewerUrl(recipeId) {
+  const params = new URLSearchParams();
+  if (recipeId) params.set("recipe", recipeId);
+  const query = params.toString();
+  return query ? `/?${query}` : "/";
+}

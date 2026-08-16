@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "web/js/admin.js",
+    "web/js/viewer.js"
+  ],
+  "project": [
+    "worker/**/*.ts",
+    "web/js/**/*.js",
+    "tests/**/*.ts"
+  ]
+}

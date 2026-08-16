@@ -6,11 +6,16 @@
   "scripts": {
     "dev": "wrangler dev --env-file tools/.env --var DEV_USER_ID:local-owner",
     "deploy": "wrangler deploy",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:frontend": "vitest run tests/frontend",
     "test:worker": "vitest run tests/worker",
-    "check": "tsc --noEmit && vitest run"
+    "quality:dead-code": "knip",
+    "quality:duplication": "jscpd",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm quality:dead-code && pnpm quality:duplication",
+    "check:ci": "pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm quality:dead-code && pnpm quality:duplication"
   },
   "dependencies": {
     "hono": "4.12.33",
@@ -18,7 +23,15 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260801.1",
-    "typescript": "7.0.2",
+    "@eslint/js": "10.0.1",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@vitest/coverage-v8": "4.1.10",
+    "eslint": "10.8.1",
+    "globals": "17.11.0",
+    "jscpd": "5.0.15",
+    "knip": "6.32.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "typescript-eslint": "8.67.0",
     "vitest": "4.1.10",
     "wrangler": "4.118.0"
   },

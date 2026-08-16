@@ -10,7 +10,7 @@
   <body>
     <header class="app-header">
       <div><p class="eyebrow">RECIPE INBOX</p><h1 id="pageTitle">レシピを追加</h1></div>
-      <a class="header-link secondary" href="/">レシピ一覧へ</a>
+      <a id="headerReturnLink" class="header-link secondary" href="/">レシピ一覧へ</a>
     </header>
     <main class="admin-layout">
       <section id="importCard" class="admin-card">
@@ -51,7 +51,10 @@
           <div id="stepsEditor"></div>
           <label>タグ（カンマ区切り） <input id="tagsInput"></label>
           <label>メモ（1行1件） <textarea id="notesInput" rows="4"></textarea></label>
-          <button class="primary-button" type="submit">この内容で保存</button>
+          <div class="editor-actions">
+            <a id="cancelEdit" class="secondary-button cancel-edit" href="/" hidden>キャンセル</a>
+            <button class="primary-button" type="submit">この内容で保存</button>
+          </div>
           <p id="saveError" class="save-error" aria-live="polite"></p>
         </form>
         <section id="dangerZone" class="danger-zone" aria-labelledby="dangerZoneTitle" hidden>

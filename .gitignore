@@ -11,6 +11,7 @@ tools/.env
 .pnpm-store/
 node_modules/
 dist/
+coverage/
 .DS_Store
 __pycache__/
 tools/__pycache__/
