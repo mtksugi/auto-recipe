@@ -72,7 +72,6 @@ function renderDetail() {
         <div>
           <p class="detail-kicker">${escapeHtml((recipe.categories ?? []).join(" · ") || "RECIPE")}</p>
           <h2>${escapeHtml(recipe.title)}</h2>
-          <p class="detail-reading">${escapeHtml(recipe.title_reading ?? "")}</p>
         </div>
         <a class="edit-recipe-link" href="admin.html?recipe=${encodeURIComponent(recipe.id)}"><span aria-hidden="true">✎</span> 編集</a>
       </div>
